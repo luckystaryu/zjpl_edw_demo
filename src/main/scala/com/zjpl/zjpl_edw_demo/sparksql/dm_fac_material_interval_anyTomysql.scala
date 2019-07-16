@@ -33,6 +33,7 @@ object dm_fac_material_interval_anyTomysql {
     val dm_event_tracking_package_detailDF = sql(
       s"""
          |select * from dm_db.dm_fac_material_interval_any
+         |where to_date(etl_dt)=to_date('$yest_dt')
        """.stripMargin)
     val url = edw_config.properties.getProperty("mysql_zjt.url")
     val user = edw_config.properties.getProperty("mysql_zjt.user")

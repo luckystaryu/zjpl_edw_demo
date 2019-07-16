@@ -125,7 +125,7 @@ object dm_fac_material_price_any {
            |      ,(mean(pricem)+1.04*stddev(pricem)) as third_max_pricem
            |      ,(mean(pricem)-1.04*stddev(pricem)) as third_min_pricem
            |      ,count(1) as data_cnt
-           | from pdw_db.p_tfacmaterialbase
+           |from ods_db.o_tfacmaterialbase
            |where cid in ('17','18','19','23','28','55','32')
            |  and isdeleted ='0'
            |  and isaudit = '1'

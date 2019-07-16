@@ -4,12 +4,13 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.Dao.Utils.MySQLUtils
 import com.zjpl.zjpl_edw_demo.sparksql.config.edw_config
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-object o_tGovExtends_chongqing {
+object o_tGovExtends_fujian {
 val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
   def main(args: Array[String]): Unit = {
     val warehouseLocation = new File("spark-warehouse").getAbsolutePath
@@ -31,7 +32,7 @@ val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
     }
     import spark.sql
     val rate:Double =scala.util.Random.nextDouble();
-    val o_tGovExtends_chongqingDF = sql(
+    val o_tGovExtends_fujianDF = sql(
       s"""
          |select id
          |,pid
@@ -52,18 +53,20 @@ val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
          |,business_tax_model_price_url
          |,value_added_tax_model_price
          |,value_added_tax_model_price_url
-         |  from ods_db.o_tGovExtends_chongqing
+         |  from ods_db.o_tGovExtends_fujian
        """.stripMargin)
     val url = edw_config.properties.getProperty("mysql_zjttest.url")
     val user = edw_config.properties.getProperty("mysql_zjttest.user")
     val password = edw_config.properties.getProperty("mysql_zjttest.password")
-    val mysteel_dataDF = o_tGovExtends_chongqingDF.write
+    val deletesql="truncate table materialgov.tGovExtends_fujian"
+    MySQLUtils.deleteMysqlTableData(spark.sqlContext,deletesql)
+    val mysteel_dataDF = o_tGovExtends_fujianDF.write
       .format("jdbc")
       .option("url", url)
       .option("user", user)
       .option("password", password)
-      .mode(SaveMode.Overwrite)
-      .option("dbtable","materialgov.tGovExtends_anhui")
+      .mode(SaveMode.Append)
+      .option("dbtable","materialgov.tGovExtends_fujian")
       .save()
     spark.stop()
   }

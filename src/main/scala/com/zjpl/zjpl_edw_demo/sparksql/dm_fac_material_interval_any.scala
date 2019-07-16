@@ -111,15 +111,16 @@ object dm_fac_material_interval_any {
          |                then 1
          |                else 0
          |            end) as five_interval_cnt
-         | from odm_db.o_tfacmaterialbase t1
+         | from ods_db.o_tfacmaterialbase t1
          | left join dm_db.dm_fac_material_price_any t2
          |   on t1.cid = t2.cid
          |  and t1.subcid = t2.subcid
          |  and t1.stdname = t2.stdname
          |  and t1.features = t2.features
          |  and t1.unit = t2.unit
+         |  and to_date(t2.etl_dt)=to_date('$yest_dt')
          |where t1.cid in ('17','18','19','23','28','55','32')
-         |  and t1.isdeleted ='0'
+         | and t1.isdeleted ='0'
          |  and t1.isaudit = '1'
          |  and t1.sourceType !='S'
          |group by t1.cid

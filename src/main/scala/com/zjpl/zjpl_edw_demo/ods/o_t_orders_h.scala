@@ -1,4 +1,4 @@
-package com.zjpl.zjpl_edw_demo.sparksql
+package com.zjpl.zjpl_edw_demo.ods
 
 import java.io.File
 import java.text.SimpleDateFormat
@@ -67,12 +67,13 @@ object o_t_orders_h {
          |  pay_limit_time   timestamp   COMMENT '支付时间期限。超过该时间后就不能支付了。当该字段为空时表示默认7天',
          |  audit_person     string      COMMENT '审核人。工单最后审核人',
          |  return_tb        int         COMMENT 'T币返现额，以‘分’为单位'
-         |)stored as parquet
+         |)partitioned by (etl_dt string)
+         | stored as parquet
        """.stripMargin)
     sql("alter table ods_db.o_t_orders_h drop if exists partition (etl_dt='" + yest_dt + "')")
     sql(
       s"""
-         |insert overwrite table ods_db.o_t_orders_h (etl_dt='$yest_dt')
+         |insert overwrite table ods_db.o_t_orders_h partition (etl_dt='$yest_dt')
          |select order_id
          |,member_id
          |,master_member_id

@@ -3,7 +3,7 @@ package com.zjpl.zjpl_edw_demo.sparksql.spark_udf
 import org.apache.commons.lang3.StringUtils
 
 @deprecated
-object UDF {
+object customUDF {
   def cityNameUDF(city:String): Unit ={
     var city_new = ""
     if(StringUtils.isNotBlank(city)&&city.endsWith("市")){
@@ -18,7 +18,7 @@ object UDF {
     }
     province_new
   }
-  def convertProvinceUDF(province:String): Unit ={
+  def convertProvinceUDF(province:String): String ={
     var province_new =""
     if(province.equals("ah")){
       province_new="安徽"
@@ -83,5 +83,6 @@ object UDF {
     }else if(province.equals("cq")){
       province_new="重庆"
     }
+    province_new
   }
 }

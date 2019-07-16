@@ -4,12 +4,13 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.Dao.Utils.MySQLUtils
 import com.zjpl.zjpl_edw_demo.sparksql.config.edw_config
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-object o_tGovExtends_quanguo {
+object o_tGovExtends_shandong {
 val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
   def main(args: Array[String]): Unit = {
     val warehouseLocation = new File("spark-warehouse").getAbsolutePath
@@ -30,21 +31,21 @@ val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
       yest_dt = dateForamt.format(cal.getTime)
     }
     import spark.sql
-    val rate:Double =scala.util.Random.nextDouble();
-    val o_tGovExtends_quanguoDF = sql(
+    val rate:Double =scala.util.Random.nextDouble()
+    val o_tGovExtends_shandongDF = sql(
       s"""
          |select id
          |,pid
          |,title
-         |,(case when tax_price is null
+         |,cast(case when tax_price is null
          |      then tax_price
          |      else (tax_price*$rate+100)/100
-         |  end) as tax_price
+         |  end as decimal(14,4)) as tax_price
          |,tax_price_url
-         |, (case when no_tax_price is null
+         |,cast(case when no_tax_price is null
          |        then no_tax_price
          |        else (no_tax_price*$rate+100)/100
-         |    end) as no_tax_price
+         |    end as decimal(14,4)) as no_tax_price
          |,no_tax_price_url
          |,comprehensive_discount_rate
          |,value_added_tax_rate
@@ -52,18 +53,20 @@ val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
          |,business_tax_model_price_url
          |,value_added_tax_model_price
          |,value_added_tax_model_price_url
-         |  from ods_db.o_tGovExtends_quanguo
+         |  from ods_db.o_tGovExtends_shandong
        """.stripMargin)
     val url = edw_config.properties.getProperty("mysql_zjttest.url")
     val user = edw_config.properties.getProperty("mysql_zjttest.user")
     val password = edw_config.properties.getProperty("mysql_zjttest.password")
-    val mysteel_dataDF = o_tGovExtends_quanguoDF.write
+    val deletesql="truncate table materialgov.tGovExtends_shandong"
+    MySQLUtils.deleteMysqlTableData(spark.sqlContext,deletesql)
+    val mysteel_dataDF = o_tGovExtends_shandongDF.write
       .format("jdbc")
       .option("url", url)
       .option("user", user)
       .option("password", password)
-      .mode(SaveMode.Overwrite)
-      .option("dbtable","materialgov.tGovExtends_quanguo")
+      .mode(SaveMode.Append)
+      .option("dbtable","materialgov.tGovExtends_shandong")
       .save()
     spark.stop()
   }

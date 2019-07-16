@@ -8,7 +8,7 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-object o_t_currency_cd {
+object o_t_currency_cd_h {
   val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
   def main(args: Array[String]): Unit = {
     val warehouseLocation = new File("spark-warehouse").getAbsolutePath
@@ -31,7 +31,7 @@ object o_t_currency_cd {
     import spark.sql
     sql(
       s"""
-         |create table if not exists ods_db.o_t_supplier_status_cd_h(
+         |create table if not exists ods_db.o_t_currency_cd_h(
          |  start_dt              string comment '开始时间'
          | ,end_dt                string comment '结束时间'
          | ,currency_cd           string comment '币种代码'
@@ -46,76 +46,78 @@ object o_t_currency_cd {
     /**
       * 1.将历史数据保留到临时表中
       */
-    val o_t_supplier_status_cd_h_tmp=sql(
+    val o_t_currency_cd_h_tmp=sql(
       s"""
          |select t1.start_dt
          |,t1.end_dt
-         |,t1.supplier_status_cd
-         |,t1.supplier_status_name
+         |,t1.currency_cd
+         |,t1.currency_cn_name
          |,t1.create_time
          |,t1.creator_name
          |,t1.update_time
          |,t1.updator_name
-         |  from ods_db.o_t_supplier_status_cd_h t1
+         |  from ods_db.o_t_currency_cd_h t1
          | where t1.start_dt <'$yest_dt'
        """.stripMargin)
-    sql("drop table if exists ods_db.o_t_supplier_status_cd_h_tmp purge")
-    o_t_supplier_status_cd_h_tmp.write.mode(SaveMode.Overwrite).saveAsTable("ods_db.o_t_supplier_status_cd_h_tmp")
+    sql("drop table if exists ods_db.o_t_currency_cd_h_tmp purge")
+    o_t_currency_cd_h_tmp.write.mode(SaveMode.Overwrite).saveAsTable("ods_db.o_t_currency_cd_h_tmp")
     /**
       * 2.将历史变动的数据全部置为失效
       */
-    val o_t_supplier_status_cd_h_tmp01=sql(
+    val o_t_currency_cd_h_tmp01=sql(
       s"""
-         |insert into table ods_db.o_t_supplier_status_cd_h
+         |insert into table ods_db.o_t_currency_cd_h
          |select t1.start_dt
          |,'$yest_dt' as end_dt
-         |,t1.supplier_status_cd
-         |,t1.supplier_status_name
+         |,t1.currency_cd
+         |,t1.currency_cn_name
          |,t1.create_time
          |,t1.creator_name
          |,t1.update_time
          |,t1.updator_name
-         |  from ods_db.o_t_supplier_status_cd_h_tmp t1
-         |  left semi join ods_db.o_t_supplier_status_cd_h t2
-         |   on t1.supplier_status_cd = t2.supplier_status_cd
+         |  from ods_db.o_t_currency_cd_h_tmp t1
+         |  left semi join ods_db.o_t_currency_cd t2
+         |   on t1.currency_cd = t2.currency_cd
        """.stripMargin)
     /**
       * 2.将变动(存量DDL和新增数据）的数据写入临时表中
       */
-    val o_t_supplier_status_cd_h_tmp02=sql(
+    val o_t_currency_cd_h_tmp02=sql(
       s"""
-         |insert into table ods_db.o_t_supplier_status_cd_h
+         |insert into table ods_db.o_t_currency_cd_h
          |select '$yest_dt' as start_dt
          |,'2999-12-31' as end_dt
-         |,t1.supplier_status_cd
-         |,t1.supplier_status_name
+         |,t1.currency_cd
+         |,t1.currency_cn_name
          |,t1.create_time
          |,t1.creator_name
          |,t1.update_time
          |,t1.updator_name
-         | from ods_db.o_t_supplier_status_cd t1
+         | from ods_db.o_t_currency_cd t1
        """.stripMargin)
 
     /**
       * 3.将存量数据写入目标表
       */
-    val o_t_supplier_status_cd_h_tmp03=sql(
+    val o_t_currency_cd_h_tmp03=sql(
       s"""
-         |insert into table ods_db.o_t_supplier_status_cd_h
+         |insert into table ods_db.o_t_currency_cd_h
          |select t1.start_dt
          |,t1.end_dt
-         |,t1.supplier_status_cd
-         |,t1.supplier_status_name
+         |,t1.currency_cd
+         |,t1.currency_cn_name
          |,t1.create_time
          |,t1.creator_name
          |,t1.update_time
          |,t1.updator_name
-         | from ods_db.o_t_supplier_status_cd_h_tmp t1
-         | left join  ods_db.o_t_supplier_status_cd  t2
-         |  on t1.supplier_status_cd= t2.supplier_status_cd
-         | where t2.supplier_status_cd is null
+         | from ods_db.o_t_currency_cd_h_tmp t1
+         | left join  ods_db.o_t_currency_cd  t2
+         |  on t1.currency_cd= t2.currency_cd
+         | where t2.currency_cd is null
        """.stripMargin
     )
-    sql("drop table if exists ods_db.o_t_supplier_status_cd_h_tmp purge")
+    sql("drop table if exists ods_db.o_t_currency_cd_h_tmp purge")
+    spark.stop()
+    spark.close()
   }
 }

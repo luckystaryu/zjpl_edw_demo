@@ -4,12 +4,13 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.Dao.Utils.MySQLUtils
 import com.zjpl.zjpl_edw_demo.sparksql.config.edw_config
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-object o_tGovExtends_anhui {
+object o_tGovMaterialBase_anhui {
 val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
   def main(args: Array[String]): Unit = {
     val warehouseLocation = new File("spark-warehouse").getAbsolutePath
@@ -30,39 +31,79 @@ val logger: slf4j.Logger = LoggerFactory.getLogger(this.getClass)
       yest_dt = dateForamt.format(cal.getTime)
     }
     import spark.sql
-    val o_tGovExtends_anhuiDF = sql(
+    val rate:Double =scala.util.Random.nextDouble()
+    val start_date:String="2018-09-01"
+    val o_tGovMaterialBase_anhuiDF = sql(
       s"""
-         |select id
-         |,pid
-         |,title
-         |,(case when tax_price is null
-         |      then tax_price
-         |      else (tax_price*1.5+100)/100
-         |  end) as tax_price
-         |,tax_price_url
-         |, (case when no_tax_price is null
-         |        then no_tax_price
-         |        else (no_tax_price*1.5+100)/100
-         |    end) as no_tax_price
-         |,no_tax_price_url
-         |,comprehensive_discount_rate
-         |,value_added_tax_rate
-         |,business_tax_model_price
-         |,business_tax_model_price_url
-         |,value_added_tax_model_price
-         |,value_added_tax_model_price_url
-         |  from ods_db.o_tGovExtends_anhui
+         |SELECT
+         |Id
+         |,cid
+         |,subcid
+         |,nid
+         |,Addr
+         |,Code
+         |,Code03
+         |,Cname
+         |,Name
+         |,stdName
+         |,fenci
+         |,Spec
+         |,Unit
+         |,cast(case when COALESCE(PriceM,0) =0
+         |           then 0
+         |           else (PriceM*$rate+100)/100
+         |       end as decimal(14,4)) as PriceM
+         |,FID
+         |,FName
+         |,Brand
+         |,cast(IssueDate as timestamp) as IssueDate
+         |,cast(CreateON  as timestamp) as CreateON
+         |,CreateBy
+         |,cast(UpdateOn as timestamp) as UpdateOn
+         |,UpdateBy
+         |,areacode
+         |,Code06
+         |,Code10
+         |,Notes
+         |,PriceShow
+         |,NameSpec
+         |,isGov
+         |,imageURL
+         |,bianma
+         |,features
+         |,keyFeatures
+         |,f01
+         |,f02
+         |,f03
+         |,f04
+         |,f05
+         |,f06
+         |,f07
+         |,f08
+         |,f09
+         |,f10
+         |,f11
+         |,f12
+         |,f13
+         |,f14
+         |,f15
+         |,isHandle
+         |,industry
+         |  from ods_db.o_tGovMaterialBase_anhui
+         |  where to_date(IssueDate)>=to_date('$start_date')
        """.stripMargin)
     val url = edw_config.properties.getProperty("mysql_zjttest.url")
     val user = edw_config.properties.getProperty("mysql_zjttest.user")
     val password = edw_config.properties.getProperty("mysql_zjttest.password")
-    val mysteel_dataDF = o_tGovExtends_anhuiDF.write
+    val deletesql="truncate table materialgov.tGovMaterialBase_anhui"
+    MySQLUtils.deleteMysqlTableData(spark.sqlContext,deletesql)
+    val mysteel_dataDF = o_tGovMaterialBase_anhuiDF.write
       .format("jdbc")
       .option("url", url)
       .option("user", user)
       .option("password", password)
-      .mode(SaveMode.Overwrite)
-      .option("dbtable","materialgov.tGovExtends_anhui")
+      .mode(SaveMode.Append)
+      .option("dbtable","materialgov.tGovMaterialBase_anhui")
       .save()
     spark.stop()
   }

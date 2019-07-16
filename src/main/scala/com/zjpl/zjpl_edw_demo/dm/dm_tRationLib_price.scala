@@ -1,4 +1,4 @@
-package com.zjpl.zjpl_edw_demo.pdw.dm
+package com.zjpl.zjpl_edw_demo.dm
 
 import java.io.File
 import java.text.SimpleDateFormat
@@ -42,7 +42,7 @@ object dm_tRationLib_price {
     import spark.sql
     sql(
       s"""
-         |  create table dm_db.dm_tRationLib_price
+         |  create table if not exists dm_db.dm_tRationLib_price
          | (
          |   code  string comment '材料二级分类代码'
          |  ,name  string comment '材料名称'
@@ -55,14 +55,27 @@ object dm_tRationLib_price {
          |	,updateBy  string    comment '更新人'
          |	,updateOn  timestamp comment '更新时间'
          | )partitioned by (etl_dt string)
-         | stored as parquet;
+         | stored as parquet
        """.stripMargin)
     sql("alter table dm_db.dm_tRationLib_price drop if exists partition (etl_dt='"+yest_dt+"')")
-    sql(
+    val o_tRationLibDF =sql(
+      s"""
+         |select t1.code
+         |      ,t1.name
+         |      ,t2.unit
+         | from (
+         |select code
+         |       ,name
+         |       ,units
+         |  from ods_db.o_tRationLib) t1
+         |  lateral view explode (split(t1.units,';')) t2 as unit
+       """.stripMargin)
+    o_tRationLibDF.createOrReplaceTempView("o_tRationLib_tmp")
+    val dm_tRationLib_priceDF=sql(
       s"""
          |insert into dm_db.dm_tRationLib_price partition (etl_dt='$yest_dt')
          |select t1.subcid
-         |      ,null as name
+         |      ,t2.name as name
          |      ,t1.cid
          |      ,t1.unit
          |      ,cast(min(t1.pricem) as decimal(14,4)) as minPrice
@@ -72,10 +85,14 @@ object dm_tRationLib_price {
          |      ,'sys'
          |      ,CURRENT_TIMESTAMP
          |from ods_db.o_tfacmaterialbase t1
-         |where t1.isDeleted !=1
+         | left join o_tRationLib_tmp t2
+         |  on t1.subcid = t2.code
+         | and t1.unit = t2.unit
+         |where t1.isDeleted =0
          |  and t1.IsAudit =1
          |  and t1.sourceType !='S'
          |group by t1.subcid
+         |        ,t2.name
          |        ,t1.cid
          |        ,t1.unit
        """.stripMargin)

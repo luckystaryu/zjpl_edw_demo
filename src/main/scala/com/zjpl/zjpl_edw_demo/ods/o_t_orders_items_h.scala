@@ -1,4 +1,4 @@
-package com.zjpl.zjpl_edw_demo.sparksql
+package com.zjpl.zjpl_edw_demo.ods
 
 import java.io.File
 import java.text.SimpleDateFormat
@@ -32,7 +32,7 @@ object o_t_orders_items_h {
     sql(
       s"""
          |create table if not exists  ods_db.o_t_orders_items_h
-         |( id                      int          COMMENT '订单项Id，主键，自增',
+         |( id                        int          COMMENT '订单项Id，主键，自增',
          |  order_id                  string       COMMENT '订单Id，关联t_orders.order_id',
          |  package_id                string       COMMENT '套餐id，关联t_package_info.package_id',
          |  package_name              string       COMMENT '套餐名称（冗余）',
@@ -44,11 +44,13 @@ object o_t_orders_items_h {
          |  discount_price            int          COMMENT '套餐折后单价，以‘分’单位',
          |  package_member_share_code string       COMMENT '套餐分享码，关联t_package_member_share.share_code',
          |  sso_memo                  string       COMMENT 'SSO人员对订单项修改备忘'
-         |)stored as parquet
+         |)partitioned by (etl_dt string)
+         |stored as parquet
        """.stripMargin)
+    sql("alter table ods_db.o_t_orders_items_h drop if exists partition (etl_dt ='"+yest_dt+"')")
     sql(
       s"""
-         |insert overwrite table ods_db.o_t_orders_items_h
+         |insert overwrite table ods_db.o_t_orders_items_h partition(etl_dt='$yest_dt')
          |select id
          |,order_id
          |,package_id

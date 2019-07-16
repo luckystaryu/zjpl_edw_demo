@@ -1,4 +1,4 @@
-package com.zjpl.zjpl_edw_demo.pdw.dm
+package com.zjpl.zjpl_edw_demo.dm
 
 import java.io.File
 import java.text.SimpleDateFormat

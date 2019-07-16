@@ -7,7 +7,8 @@
   <properties>
     <scala.version>2.11.8</scala.version>
     <hadoop.version>2.6.0-cdh5.14.2</hadoop.version>
-      <hbase.version>1.2.0-cdh5.14.2</hbase.version>
+    <hbase.version>1.2.0-cdh5.14.2</hbase.version>
+    <hive.version>1.1.0-cdh5.14.2</hive.version>
     <spark.verison>2.3.0.cloudera4</spark.verison>
     <mysql.version>5.1.47</mysql.version>
     <flume.version>1.6.0-cdh5.14.2</flume.version>
@@ -33,13 +34,6 @@
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
     </dependency>
-    <!--增加phoenix依赖的包-->
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-spark</artifactId>
-      <version>${phoenix.version}</version>
-    </dependency>
-
     <!--hadoop依赖包-->
     <dependency>
       <groupId>org.apache.hadoop</groupId>
@@ -117,7 +111,16 @@
           <artifactId>io.netty</artifactId>
           <groupId>netty-all</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>io.netty</artifactId>
+          <groupId>netty</groupId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-jdbc</artifactId>
+      <version>${hive.version}</version>
     </dependency>
       <!--Hbase依赖的包-->
       <dependency>
@@ -240,6 +243,18 @@
           <artifactId>jackson-core</artifactId>
           <groupId>com.fasterxml.jackson.core</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>protobuf-java</artifactId>
+          <groupId>com.google.protobuf</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>protobuf-java</artifactId>
+          <groupId>com.google.protobuf</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -280,51 +295,57 @@
       <artifactId>elasticsearch-spark-20_2.11</artifactId>
       <version>5.5.3</version>
     </dependency>
+    <!--elasticsearch-->
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>5.5.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>transport</artifactId>
+      <version>5.5.3</version>
+    </dependency>
+    <!--整合sqoop1依赖的包-->
+    <dependency>
+      <groupId>org.apache.sqoop</groupId>
+      <artifactId>sqoop</artifactId>
+      <version>1.4.6-cdh5.14.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-mapper-asl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>eigenbase</groupId>
+          <artifactId>eigenbase-properties</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.pentaho</groupId>
+          <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!--mysql依赖-->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>${mysql.version}</version>
-    </dependency>
-
-    <!--整合canal-->
-    <dependency>
-      <groupId>com.alibaba.otter</groupId>
-      <artifactId>canal.client</artifactId>
-      <version>1.1.2</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>zookeeper</artifactId>
-          <groupId>org.apache.zookeeper</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-codec</artifactId>
-          <groupId>commons-codec</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>io.netty</artifactId>
-          <groupId>netty-all</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!--poi execel操作依赖包-->
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>3.17</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-codec</artifactId>
-          <groupId>commons-codec</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-      <version>3.17</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
@@ -341,12 +362,41 @@
       <artifactId>protobuf-java</artifactId>
       <version>3.6.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>5.1.5.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>5.1.5.RELEASE</version>
+    </dependency>
   </dependencies>
 
   <build>
-    <sourceDirectory>src/main/scala</sourceDirectory>
-    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <!--<sourceDirectory>src/main/scala</sourceDirectory>-->
+    <!--<testSourceDirectory>src/test/scala</testSourceDirectory>-->
     <plugins>
+      <!--新增java打包-->
+      <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.2</version>
+      <configuration>
+        <source>1.8</source>
+        <target>1.8</target>
+        <encoding>UTF-8</encoding>
+      </configuration>
+      <executions>
+        <execution>
+          <phase>compile</phase>
+          <goals>
+            <goal>compile</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>

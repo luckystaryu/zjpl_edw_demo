@@ -18,20 +18,26 @@ object MysqlPoolManager {
 
   class MysqlPool extends Serializable{
     private val dds :DruidDataSource =new DruidDataSource()
+//    def DruidMysqlPool(args:Array[String]): Unit = {
+//      val driver: String = args(0)
+//      val url:String = args(1)
+//      val
+//    }
+
     try{
       dds.setDriverClassName(edw_config.properties.getProperty("mysql_zjt.driver"))
       dds.setUrl(edw_config.properties.getProperty("mysql_zjt.url"))
       dds.setUsername(edw_config.properties.getProperty("mysql_zjt.user"))
       dds.setPassword(edw_config.properties.getProperty("mysql_zjt.password"))
-      dds.setInitialSize(edw_config.properties.getProperty("mysql_zjt.initSize").toInt)
-      dds.setMinIdle(edw_config.properties.getProperty("mysql_zjt.minIdle").toInt)
-      dds.setMaxActive(edw_config.properties.getProperty("mysql_zjt.maxActive").toInt)
-      dds.setMaxWait(edw_config.properties.getProperty("mysql_zjt.maxWait").toInt)
-      dds.setTimeBetweenEvictionRunsMillis(edw_config.properties.getProperty("mysql_zjt.timeBetweenEvictionRunsMillis").toInt)
-      dds.setMinEvictableIdleTimeMillis(edw_config.properties.getProperty("mysql_zjt.minEvictableIdleTimeMillis").toInt)
-      dds.setValidationQuery(edw_config.properties.getProperty("mysql_zjt.validationQuery"))
-      dds.setTestWhileIdle(edw_config.properties.getProperty("mysql_zjt.testWhileIdle").toBoolean)
-      dds.setMaxPoolPreparedStatementPerConnectionSize(edw_config.properties.getProperty("mysql_zjt.maxPoolPreparedStatementPerConnectionSize").toInt)
+//      dds.setInitialSize(edw_config.properties.getProperty("mysql_zjt.initSize").toInt)
+//      dds.setMinIdle(edw_config.properties.getProperty("mysql_zjt.minIdle").toInt)
+//      dds.setMaxActive(edw_config.properties.getProperty("mysql_zjt.maxActive").toInt)
+//      dds.setMaxWait(edw_config.properties.getProperty("mysql_zjt.maxWait").toInt)
+//      dds.setTimeBetweenEvictionRunsMillis(edw_config.properties.getProperty("mysql_zjt.timeBetweenEvictionRunsMillis").toInt)
+//      dds.setMinEvictableIdleTimeMillis(edw_config.properties.getProperty("mysql_zjt.minEvictableIdleTimeMillis").toInt)
+//      dds.setValidationQuery(edw_config.properties.getProperty("mysql_zjt.validationQuery"))
+//      dds.setTestWhileIdle(edw_config.properties.getProperty("mysql_zjt.testWhileIdle").toBoolean)
+//      dds.setMaxPoolPreparedStatementPerConnectionSize(edw_config.properties.getProperty("mysql_zjt.maxPoolPreparedStatementPerConnectionSize").toInt)
     }catch{
       case e:Exception => e.printStackTrace
     }
