@@ -1,16 +1,22 @@
 package com.zjpl.zjpl_edw_demo.sparksql.spark_udf
 
-import org.apache.commons.lang3.StringUtils
+import java.util.regex.{Matcher, Pattern}
 
-@deprecated
+import org.apache.commons.lang3.StringUtils
+import org.apache.spark.sql.catalyst.expressions.Chr
+
 object customUDF {
-  def cityNameUDF(city:String): Unit ={
-    var city_new = ""
-    if(StringUtils.isNotBlank(city)&&city.endsWith("市")){
+  def cityNameUDF(city:String): String ={
+    var city_new:String= ""
+    if(StringUtils.isNotBlank(city)&&city.endsWith("市市")){
       city_new = city.substring(0,city.length-1)
+    }else if(StringUtils.isNotBlank(city)&&city.contains("省")){
+      city_new=city.substring(city.indexOf("省")+1)
+    }else{
+      city_new=city.concat("市")
     }
-    city_new
-  }
+      city_new
+    }
   def provinceNameUDF(province:String): Unit ={
     var province_new =""
     if(StringUtils.isNotBlank(province)&&province.endsWith("省")){
@@ -84,5 +90,69 @@ object customUDF {
       province_new="重庆"
     }
     province_new
+  }
+
+  /**
+    * 判断字符串中是否包含中文
+    * @param inputStr
+    * @return
+    */
+  def isChineseCharacter(inputStr:String): String ={
+    val pattern:Pattern=Pattern.compile("[\\u4e00-\\u9fa5]")
+    var result:String="0"
+    if(StringUtils.isNotBlank(inputStr)){
+      val m:Matcher=pattern.matcher(inputStr)
+      if(m.find()){
+        result="1"
+      }else{
+        result="0"
+      }
+    }
+    result
+  }
+
+  /**
+    * 判断字符串中是否是纯数字
+    * @param inputStr
+    * @return
+    */
+  def isInteger(inputStr:String):Int = {
+    var result:Int=0
+    if(StringUtils.isNotBlank(inputStr)){
+      val parttern:Pattern=Pattern.compile("^[-\\+]?[\\d]*$")
+      val m:Matcher=parttern.matcher(inputStr)
+      if(m.matches()){
+        result=1
+      }else{
+        result=0
+      }
+    }
+    result
+  }
+
+  /***
+    * 判断字符串是否是邮箱
+    * @param inputStr
+    * @return
+    */
+  def isEmail(inputStr:String):Int ={
+    var result:Int=0
+    if(StringUtils.isNotBlank(inputStr)){
+      val pattern:Pattern=Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$")
+      val m:Matcher=pattern.matcher(inputStr)
+      if(m.matches()){
+        result=1
+      }else{
+        result=0
+      }
+    }
+    result
+  }
+  def defineReplace(inputStr:String):String= {
+    var resultStr: String = ""
+    if (StringUtils.isNotBlank(inputStr)) {
+      resultStr = inputStr.trim.replaceAll("\\n|\\t|\\r|\\r\\n|\\n\\r|-","").replace(" ","")
+    }
+    resultStr
   }
 }

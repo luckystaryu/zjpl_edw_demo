@@ -70,6 +70,8 @@ object p_t_product_para_info {
          | from ods_db.o_tfacmaterialbase_h t1
          | lateral view explode(split(features,';')) t2 as feature
          |where t1.etl_dt='$yest_dt'
+         |  and t1.isDeleted !='1'
+         |  and t1.isAudit ='1'
        """.stripMargin)
     spark.stop()
     spark.close()

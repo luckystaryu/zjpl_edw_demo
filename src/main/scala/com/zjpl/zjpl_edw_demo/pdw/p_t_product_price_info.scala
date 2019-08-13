@@ -4,6 +4,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.spark_udf.customUDF
 import org.apache.spark.sql.SparkSession
 import org.slf4j
 import org.slf4j.LoggerFactory
@@ -40,6 +41,7 @@ object p_t_product_price_info {
       yest_dt02 = dateForamt.format(cal.getTime)
     }
     import spark.sql
+    spark.udf.register("cityNameUDF",customUDF.cityNameUDF(_:String))
     sql(
       s"""
          | create table if not exists pdw_db.p_t_product_price_info
@@ -74,11 +76,11 @@ object p_t_product_price_info {
          |      ,t1.unit
          |      ,0 as tax_rate
          |      ,t1.pricem
-         |      ,'CNY'
+         |      ,'CNY' as currency_cd
          |      ,t1.fid
          |      ,cast(to_date(t1.issuedate) as string)
          |      ,t1.price_validday
-         |      ,coalesce(t2.regionCode,t1.city)
+         |      ,coalesce(t2.regionCode,t3.regionCode,t1.city) as regionCode
          |      ,'02' as price_class_cd
          |      ,t1.source
          |      ,t1.createOn
@@ -91,7 +93,14 @@ object p_t_product_price_info {
          | and length(t2.regioncode)=6
          | and to_date(t2.start_dt) <= to_date('$yest_dt')
          | and to_date(t2.end_dt) > to_date('$yest_dt')
+         | left join ods_db.o_tareamanagement_h t3
+         |  on cityNameUDF(t1.city) = t3.name
+         | and length(t3.regioncode)=6
+         | and to_date(t3.start_dt) <= to_date('$yest_dt')
+         | and to_date(t3.end_dt) > to_date('$yest_dt')
          |where t1.etl_dt='$yest_dt'
+         |  and t1.isDeleted !='1'
+         |  and t1.isAudit ='1'
        """.stripMargin)
     spark.stop()
     spark.close()

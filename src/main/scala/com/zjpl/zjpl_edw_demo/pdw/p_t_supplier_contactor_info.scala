@@ -4,6 +4,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.spark_udf.customUDF
 import org.apache.spark.sql.SparkSession
 import org.slf4j
 import org.slf4j.LoggerFactory
@@ -40,6 +41,7 @@ object p_t_supplier_contactor_info {
       yest_dt02 = dateForamt.format(cal.getTime)
     }
     import spark.sql
+    spark.udf.register("defineReplace",customUDF.defineReplace(_:String))
     sql(
       s"""
          | create table if not exists pdw_db.p_t_supplier_contactor_info
@@ -104,7 +106,7 @@ object p_t_supplier_contactor_info {
          |   and to_date(t1.end_dt) > to_date('$yest_dt')
          |   and t1.isDeleted !=1
          |   and t1.IsAudit =1
-         |   and coalesce(t1.CONTACT,'')!='')tt
+         |   and defineReplace(t1.CONTACT)!='')tt
          |   LATERAL VIEW explode(split(contact_type,',')) tt1 as contact_type
          |  WHERE regexp_replace(coalesce(split(tt1.contact_type,':')[1],''),' ','')!=''
        """.stripMargin)

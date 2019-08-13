@@ -4,6 +4,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
+import com.zjpl.zjpl_edw_demo.sparksql.spark_udf.customUDF
 import org.apache.spark.sql.SparkSession
 import org.slf4j
 import org.slf4j.LoggerFactory
@@ -40,6 +41,7 @@ object dm_t_supplier_info_error {
       yest_dt02 = dateForamt.format(cal.getTime)
     }
     import spark.sql
+    spark.udf.register("isChineseCharacter",customUDF.isChineseCharacter(_:String))
     sql(
       s"""
          | create table if not exists dm_db.dm_t_check_data_valid
@@ -72,18 +74,17 @@ object dm_t_supplier_info_error {
          |                     then 'E0001'
          |                     else null
          |                 end
-         |               ,case when coalesce(city_cd,'')=''
-         |                     then 'E0002'
-         |                     else null
-         |                 end
          |               ,case when coalesce(supplier_status_cd,'')=''
          |                     then 'E0003'
          |                     else null
+         |                 end
+         |               ,case when isChineseCharacter(t1.city_cd)='1' or coalesce(t1.city_cd,'')=''
+         |                     then 'E0004'
+         |                     else null
          |                 end) as error_id
-         |           from pdw_db.p_t_supplier_info
-         |          where coalesce(legal_representor,'') =''
-         |             or coalesce(city_cd,'') = ''
-         |             or coalesce(supplier_status_cd,'')='') tt LATERAL VIEW explode(split(error_id,',')) tt1 as error_id
+         |           from dm_db.dm_t_supplier_info_detail_error t1
+         |          where etl_dt ='$yest_dt'
+         |          ) tt LATERAL VIEW explode(split(error_id,',')) tt1 as error_id
        """.stripMargin)
     spark.stop()
   }

@@ -87,6 +87,8 @@ object p_t_product_info {
          |  and to_date(t2.start_dt) <= to_date('$yest_dt')
          |  and to_date(t2.end_dt) > to_date('$yest_dt')
          |where t1.etl_dt='$yest_dt'
+         |  and t1.isDeleted !='1'
+         |  and t1.isAudit ='1'
        """.stripMargin)
     spark.stop()
     spark.close()
