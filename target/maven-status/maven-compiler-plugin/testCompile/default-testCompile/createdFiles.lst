@@ -1,1 +1,6 @@
+hbase\GetDemo.class
+hbase\AdminDemo.class
+hbase\ScanDemo.class
+hbase\BaseDemo.class
 LoggerGenerator.class
+hbase\PutDemo.class

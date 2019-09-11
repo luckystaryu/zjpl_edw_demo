@@ -49,6 +49,7 @@ public abstract class BaseCanalClientTest {
         long memsize =0;
         for(CanalEntry.Entry entry:message.getEntries()){
             memsize +=entry.getHeader().getEventLength();
+            System.out.println(String.valueOf(entry.getHeader())+String.valueOf(entry.getStoreValue()));
         }
         String startPosition = null;
         String endPosition = null;

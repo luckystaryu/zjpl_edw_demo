@@ -19,7 +19,7 @@ public class SimepleCanalClientPermanceTest {
         int perSum = 0;
         long start = System.currentTimeMillis();
         long end =0;
-        final ArrayBlockingQueue<Long> queue = new ArrayBlockingQueue<Long>(100);
+        final ArrayBlockingQueue<Long> queue = new ArrayBlockingQueue<Long>(1,true);
         try{
             final CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress(ip,11111),
                     destination,

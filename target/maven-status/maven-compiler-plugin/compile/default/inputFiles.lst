@@ -1,8 +1,13 @@
-D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\BaseCanalClientTest.java
-D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\SimepleCanalClientPermanceTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\hbase\HBaseClient.java
 D:\IdeaProjects2\zjpl_edw_demo\src\main\java\utils\getSplitKeysWithReginNum.java
-D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\AbstarctCanalClientTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\hbase\HbaseRecord.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\kakfka\AbstractKafkaTest.java
 D:\IdeaProjects2\zjpl_edw_demo\src\main\java\LoggerGenerator.java
 D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\SimpleCanalClientDemo.java
 D:\IdeaProjects2\zjpl_edw_demo\src\main\java\utils\MD5Utils.java
 D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\SimpleCanalClientTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\BaseCanalClientTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\SimepleCanalClientPermanceTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\canal\AbstarctCanalClientTest.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\kakfka\CanalKafkaClientExample.java
+D:\IdeaProjects2\zjpl_edw_demo\src\main\java\kafka\KafkaService.java

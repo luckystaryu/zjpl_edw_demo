@@ -58,7 +58,7 @@ public abstract class AbstarctCanalClientTest extends BaseCanalClientTest{
                 MDC.put("destination",destination);
                 //建立连接，订阅表
                 connector.connect();
-                connector.subscribe();
+                connector.subscribe("materialfac\\..*");
                 while(running){
                     Message message = connector.getWithoutAck(batchSize);//获取指定数量的数据
                     long batchId = message.getId();
